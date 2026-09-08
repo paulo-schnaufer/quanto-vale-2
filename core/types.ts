@@ -1,67 +1,62 @@
-export type TelaAtiva = 
-  | 'boas-vindas' 
-  | 'setup-duplas' 
-  | 'selecao-objeto' 
-  | 'captura-palpite' 
-  | 'cotacoes' 
-  | 'calculo-pontuacao' 
-  | 'revelacao-cedulas' 
-  | 'placar-vitrine' 
-  | 'configuracoes';
+// core/types.ts
+export type FaixaPontuacao = 'maxima' | 'media' | 'baixa' | 'zero';
 
 export interface Dupla {
   id: string;
-  nome: string;
+  nomeExibicao: string;
+  pontuacaoTotal: number;
+  ordem: number;
 }
 
-export interface ObjetoSorteado {
+export interface ObjetoJogo {
   id: string;
   nome: string;
-  valorOriginalBRL: number;
-  categoria: string;
-  imagemUrl?: string;
+  imagemUrl: string;
+  precoReaisCentavos: number;
+  categoria?: string;
 }
 
-export interface PalpiteDupla {
-  duplaId: string;
-  valorPalpitadoBRL: number;
-}
-
-export interface CotacaoMoeda {
-  paisISO: string;
-  codigoISO4217: string;
-  taxaParaBRL: number;
-  dataAtualizacao: string;
-  origem: 'api' | 'fallback';
-}
-
-export interface PontuacaoRodada {
-  duplaId: string;
-  palpiteBRL: number;
-  diferencaAbsoluta: number;
+export interface ResultadoRodada {
+  erroPercentualAbsoluto: number;
+  faixa: FaixaPontuacao;
   pontosGanhos: number;
 }
 
-export interface HistoricoRodada {
-  numeroRodada: number;
-  objeto: ObjetoSorteado;
-  palpites: PalpiteDupla[];
-  pontuacoes: PontuacaoRodada[];
+export interface RodadaAtual {
+  numero: number;
+  duplaId: string;
+  objeto: ObjetoJogo | null;
+  palpiteReaisCentavos: number | null;
+  tempoRespostaMs: number | null;
+  esgotouTempo: boolean;
+  resultado: ResultadoRodada | null;
 }
 
-export interface ConfiguracoesApp {
+export interface CotacaoMoeda {
+  codigoISO4217: string;
+  valorEmReais: number;
+  atualizadoEm: string;
+  origem: 'api' | 'fallback-local';
+}
+
+export interface CedulaEmRevelacao {
+  paisISO: string;
+  codigoISO4217: string;
+  denominacao: number;
+  imagemPath: string;
+}
+
+export interface ConfiguracoesJogo {
   numeroDeRodadas: number;
   tempoLimiteSegundosPorPalpite: number;
   paisesDestaque: string[];
 }
 
 export interface GameState {
-  telaAtiva: TelaAtiva;
-  rodadaAtual: number;
   duplas: Dupla[];
-  objetoAtual: ObjetoSorteado | null;
-  palpitesRodadaAtual: PalpiteDupla[];
+  rodadaAtual: RodadaAtual | null;
+  historicoRodadas: RodadaAtual[];
   cotacoes: Record<string, CotacaoMoeda>;
-  historicoRodadas: HistoricoRodada[];
-  configuracoes: ConfiguracoesApp;
+  cedulaEmRevelacao: CedulaEmRevelacao | null;
+  configuracoes: ConfiguracoesJogo;
 }
