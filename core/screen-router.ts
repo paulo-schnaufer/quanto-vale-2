@@ -19,3 +19,5 @@ export function sessaoTerminou(state: any): boolean {
   
   return numeroAtual >= totalRodadas && proxima === null;
 }
+
+export type ScreenId = string;

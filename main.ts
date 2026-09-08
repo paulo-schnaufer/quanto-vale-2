@@ -8,6 +8,7 @@ import { selecaoObjetoScreen } from './features/selecao-objeto';
 import { capturaPalpiteScreen } from './features/captura-palpite';
 import { proximaDuplaDaRodada } from './core/screen-router';
 import { revelacaoCedulasScreen } from './features/revelacao-cedulas';
+import { configuracoesScreen } from './features/configuracoes';
 
 const screens = new Map();
 function registrarScreen(screen) {
@@ -20,6 +21,20 @@ registrarScreen(setupDuplasScreen);
 registrarScreen(selecaoObjetoScreen);
 registrarScreen(capturaPalpiteScreen);
 registrarScreen(revelacaoCedulasScreen);
+registrarScreen(configuracoesScreen);
+
+window.addEventListener('keydown', (evento) => {
+  if (evento.key === 'F2') {
+    evento.preventDefault();
+    const telaAtual = store.getState().telaAtual;
+    
+    if (telaAtual === 'boas-vindas' || telaAtual === 'placar-vitrine') {
+      navegarPara('configuracoes');
+    } else {
+      console.warn('[Núcleo] Configurações só podem ser abertas antes do jogo ou no placar final.');
+    }
+  }
+});
 
 bus.on('pontuacao:calculada', ({ duplaId, rodadaConcluida }) => {
   const state = store.getState();
@@ -128,6 +143,19 @@ bus.on('cedula:revelada', (payload) => {
 
   store.setState({ rodadaAtual });
   console.log(`[Núcleo] Cédula de ${payload.denominacao} ${payload.codigoISO4217} revelada.`);
+});
+
+bus.on('configuracoes:atualizadas', (novasConfiguracoes) => {
+  const state = store.getState();
+  
+  store.setState({ 
+    configuracoes: { 
+      ...state.configuracoes, 
+      ...novasConfiguracoes 
+    } 
+  });
+
+  console.log('[Núcleo] Configurações atualizadas:', novasConfiguracoes);
 });
 
 iniciarCotacoes(bus);
