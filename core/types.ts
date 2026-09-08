@@ -4,30 +4,30 @@ export interface Dupla {
   id: string;
   nomeExibicao: string;
   pontuacaoTotal: number;
-  ordem: number;
+  ordem?: number;
   [key: string]: any;
 }
 
 export interface ObjetoJogo {
   id: string;
   nome: string;
-  imagemUrl: string;
+  imagemUrl?: string;
   precoReaisCentavos: number;
   categoria?: string;
   [key: string]: any;
 }
 
 export interface ResultadoRodada {
-  erroPercentualAbsoluto: number;
-  faixa: FaixaPontuacao;
-  pontosGanhos: number;
+  erroPercentualAbsoluto?: number;
+  faixa?: FaixaPontuacao;
+  pontosGanhos?: number;
   [key: string]: any;
 }
 
 export interface RodadaAtual {
-  numero: number;
+  numero?: number;
   duplaId?: string;
-  objeto: ObjetoJogo | null;
+  objeto?: ObjetoJogo | null;
   palpiteReaisCentavos?: number | null;
   tempoRespostaMs?: number | null;
   esgotouTempo?: boolean;
@@ -64,9 +64,9 @@ export interface GameState {
   duplas: Dupla[];
   rodadaAtual: RodadaAtual | null;
   historicoRodadas: RodadaAtual[];
-  cotacoes: Record<string, CotacaoMoeda>;
-  cedulaEmRevelacao: CedulaEmRevelacao | null;
-  configuracoes: ConfiguracoesJogo;
+  cotacoes?: Record<string, CotacaoMoeda>;
+  cedulaEmRevelacao?: CedulaEmRevelacao | null;
+  configuracoes?: ConfiguracoesJogo;
   [key: string]: any;
 }
 

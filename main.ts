@@ -24,26 +24,27 @@ registrarScreen(placarVitrineScreen);
 window.addEventListener('keydown', (evento) => {
   if (evento.key === 'F2') {
     evento.preventDefault();
-    const telaAtual = store.getState().telaAtual;
+    const telaAtual = store.getState().telaAtual || store.getState().telaAtiva;
     if (telaAtual === 'boas-vindas' || telaAtual === 'placar-vitrine') {
       navegarPara('configuracoes');
     }
   }
 });
 
-bus.on('pontuacao:calculada', ({ duplaId, rodadaConcluida }) => {
+bus.on('pontuacao:calculada', (payload: any) => {
+  const { duplaId, rodadaConcluida } = payload || {};
   const state = store.getState();
-  const duplasAtualizadas = [...state.duplas];
+  const duplasAtualizadas = [...(state.duplas || [])];
   const indexDupla = duplasAtualizadas.findIndex((d) => d.id === duplaId);
   if (indexDupla !== -1) {
     const dupla = { ...duplasAtualizadas[indexDupla] };
-    dupla.pontuacaoTotal += rodadaConcluida.resultado.pontosGanhos;
+    dupla.pontuacaoTotal = (dupla.pontuacaoTotal || 0) + (rodadaConcluida?.resultado?.pontosGanhos || 0);
     duplasAtualizadas[indexDupla] = dupla;
   }
   store.setState({
     rodadaAtual: rodadaConcluida,
     duplas: duplasAtualizadas,
-    historicoRodadas: [...state.historicoRodadas, rodadaConcluida]
+    historicoRodadas: [...(state.historicoRodadas || []), rodadaConcluida]
   });
 });
 
@@ -51,16 +52,31 @@ bus.on('sessao:reiniciada', () => {
   store.setState({ duplas: [], rodadaAtual: null, historicoRodadas: [], cedulaEmRevelacao: null });
 });
 
-bus.on('duplas:definidas', ({ duplas }) => store.setState({ duplas }));
-bus.on('objeto:selecionado', ({ objeto }) => store.setState({ rodadaAtual: { ...store.getState().rodadaAtual, objeto, palpites: [] } }));
-bus.on('cedula:revelada', (payload) => store.setState({ rodadaAtual: { ...store.getState().rodadaAtual, cedulaEmRevelacao: payload } }));
-bus.on('configuracoes:atualizadas', (nov) => store.setState({ configuracoes: { ...store.getState().configuracoes, ...nov } }));
-bus.on('palpite:enviado', (payload) => {
+bus.on('duplas:definidas', (payload: any) => store.setState({ duplas: payload?.duplas || [] }));
+
+bus.on('objeto:selecionado', (payload: any) => {
+  const rodadaAntiga = store.getState().rodadaAtual || {};
+  store.setState({ rodadaAtual: { ...rodadaAntiga, objeto: payload?.objeto, palpites: [] } });
+});
+
+bus.on('cedula:revelada', (payload: any) => {
+  const rodadaAntiga = store.getState().rodadaAtual || {};
+  store.setState({ rodadaAtual: { ...rodadaAntiga, cedulaEmRevelacao: payload } });
+});
+
+bus.on('configuracoes:atualizadas', (novasConfig: any) => {
+  const configAntiga = store.getState().configuracoes || {};
+  store.setState({ configuracoes: { ...configAntiga, ...novasConfig } });
+});
+
+bus.on('palpite:enviado', (payload: any) => {
   const state = store.getState();
   const duplaAtual = proximaDuplaDaRodada(state);
   if (!duplaAtual) return;
   const novoPalpite = { duplaId: duplaAtual.id, ...payload };
-  store.setState({ rodadaAtual: { ...state.rodadaAtual, palpites: [...(state.rodadaAtual?.palpites || []), novoPalpite] } });
+  const rodadaAntiga = state.rodadaAtual || {};
+  const palpitesAntigos = rodadaAntiga.palpites || [];
+  store.setState({ rodadaAtual: { ...rodadaAntiga, palpites: [...palpitesAntigos, novoPalpite] } });
 });
 
 iniciarCotacoes(bus);
