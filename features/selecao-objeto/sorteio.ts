@@ -3,7 +3,7 @@
 // Lógica pura (sem DOM, sem bus) da feature — isolada para ser testável
 // unitariamente e para deixar mount() em index.ts enxuto.
 
-import type { GameState, ObjetoJogo, RodadaAtual } from '/../core/game-state.types';
+import type { GameState, ObjetoJogo, RodadaAtual } from '../../core/game-state.types';
 import { proximaDuplaDaRodada } from "../../core/screen-router";
 
 export interface ProximoTurno {
