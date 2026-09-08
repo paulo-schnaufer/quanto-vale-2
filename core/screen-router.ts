@@ -11,3 +11,11 @@ export function proximaDuplaDaRodada(state: any) {
   
   return proxima || null;
 }
+
+export function sessaoTerminou(state: any): boolean {
+  const totalRodadas = state.configuracoes?.totalRodadas || 3;
+  const numeroAtual = state.rodadaAtual?.numero || 1;
+  const proxima = proximaDuplaDaRodada(state);
+  
+  return numeroAtual >= totalRodadas && proxima === null;
+}

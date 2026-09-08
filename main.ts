@@ -7,6 +7,7 @@ import { boasVindasScreen, setupDuplasScreen } from './features/setup-duplas';
 import { selecaoObjetoScreen } from './features/selecao-objeto';
 import { capturaPalpiteScreen } from './features/captura-palpite';
 import { proximaDuplaDaRodada } from './core/screen-router';
+import { revelacaoCedulasScreen } from './features/revelacao-cedulas';
 
 const screens = new Map();
 function registrarScreen(screen) {
@@ -18,6 +19,7 @@ registrarScreen(boasVindasScreen);
 registrarScreen(setupDuplasScreen);
 registrarScreen(selecaoObjetoScreen);
 registrarScreen(capturaPalpiteScreen);
+registrarScreen(revelacaoCedulasScreen);
 
 bus.on('pontuacao:calculada', ({ duplaId, rodadaConcluida }) => {
   const state = store.getState();
@@ -114,6 +116,18 @@ bus.on('palpite:enviado', (payload) => {
 
   store.setState({ rodadaAtual });
   console.log(`[Núcleo] Palpite da dupla ${duplaAtual.nomeExibicao} registrado:`, novoPalpite);
+});
+
+bus.on('cedula:revelada', (payload) => {
+  const state = store.getState();
+  
+  const rodadaAtual = {
+    ...state.rodadaAtual,
+    cedulaEmRevelacao: payload
+  };
+
+  store.setState({ rodadaAtual });
+  console.log(`[Núcleo] Cédula de ${payload.denominacao} ${payload.codigoISO4217} revelada.`);
 });
 
 iniciarCotacoes(bus);
