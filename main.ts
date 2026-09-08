@@ -5,6 +5,8 @@ import { iniciarCotacoes } from './features/cotacoes';
 import { calculoPontuacaoScreen } from './features/calculo-pontuacao';
 import { boasVindasScreen, setupDuplasScreen } from './features/setup-duplas';
 import { selecaoObjetoScreen } from './features/selecao-objeto';
+import { capturaPalpiteScreen } from './features/captura-palpite';
+import { proximaDuplaDaRodada } from './core/screen-router';
 
 const screens = new Map();
 function registrarScreen(screen) {
@@ -15,6 +17,7 @@ registrarScreen(calculoPontuacaoScreen);
 registrarScreen(boasVindasScreen);
 registrarScreen(setupDuplasScreen);
 registrarScreen(selecaoObjetoScreen);
+registrarScreen(capturaPalpiteScreen);
 
 bus.on('pontuacao:calculada', ({ duplaId, rodadaConcluida }) => {
   const state = store.getState();
@@ -85,6 +88,32 @@ bus.on('objeto:selecionado', ({ objeto }) => {
 
   store.setState({ rodadaAtual });
   console.log('[Núcleo] Objeto sorteado e salvo no estado:', objeto.nome);
+});
+
+bus.on('palpite:enviado', (payload) => {
+  const state = store.getState();
+  
+  const duplaAtual = proximaDuplaDaRodada(state);
+  
+  if (!duplaAtual) {
+    console.error('[Núcleo] Erro: Palpite recebido, mas nenhuma dupla estava pendente.');
+    return;
+  }
+
+  const novoPalpite = {
+    duplaId: duplaAtual.id,
+    palpiteReaisCentavos: payload.palpiteReaisCentavos,
+    tempoRespostaMs: payload.tempoRespostaMs,
+    esgotouTempo: payload.esgotouTempo
+  };
+
+  const rodadaAtual = {
+    ...state.rodadaAtual,
+    palpites: [...(state.rodadaAtual?.palpites || []), novoPalpite]
+  };
+
+  store.setState({ rodadaAtual });
+  console.log(`[Núcleo] Palpite da dupla ${duplaAtual.nomeExibicao} registrado:`, novoPalpite);
 });
 
 iniciarCotacoes(bus);
