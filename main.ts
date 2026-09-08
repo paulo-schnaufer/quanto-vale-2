@@ -3,6 +3,7 @@ import { store } from './core/store';
 import { bus } from './core/events';
 import { iniciarCotacoes } from './features/cotacoes';
 import { calculoPontuacaoScreen } from './features/calculo-pontuacao';
+import { boasVindasScreen, setupDuplasScreen } from './features/setup-duplas';
 
 const screens = new Map();
 function registrarScreen(screen) {
@@ -10,6 +11,8 @@ function registrarScreen(screen) {
   console.log(`[Núcleo] Tela registrada: ${screen.id}`);
 }
 registrarScreen(calculoPontuacaoScreen);
+registrarScreen(boasVindasScreen);
+registrarScreen(setupDuplasScreen);
 
 bus.on('pontuacao:calculada', ({ duplaId, rodadaConcluida }) => {
   const state = store.getState();
@@ -48,6 +51,21 @@ bus.on('cotacoes:atualizadas', (payload) => {
 
 bus.on('STATE_CHANGED', (state) => {
   console.log('[Core Store Update]:', state);
+});
+
+bus.on('sessao:reiniciada', () => {
+  store.setState({
+    duplas: [],
+    rodadaAtual: null,
+    historicoRodadas: [],
+    cedulaEmRevelacao: null
+  });
+  console.log('[Núcleo] Sessão reiniciada. Estado limpo.');
+});
+
+bus.on('duplas:definidas', ({ duplas }) => {
+  store.setState({ duplas });
+  console.log('[Núcleo] Duplas definidas no estado:', duplas);
 });
 
 iniciarCotacoes(bus);
