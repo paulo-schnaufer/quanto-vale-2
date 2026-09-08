@@ -2,6 +2,34 @@ import './shared/theme.css';
 import { store } from './core/store';
 import { bus } from './core/events';
 import { iniciarCotacoes } from './features/cotacoes';
+import { calculoPontuacaoScreen } from './features/calculo-pontuacao';
+
+const screens = new Map();
+function registrarScreen(screen) {
+  screens.set(screen.id, screen);
+  console.log(`[Núcleo] Tela registrada: ${screen.id}`);
+}
+registrarScreen(calculoPontuacaoScreen);
+
+bus.on('pontuacao:calculada', ({ duplaId, rodadaConcluida }) => {
+  const state = store.getState();
+  const duplasAtualizadas = [...state.duplas];
+
+  const indexDupla = duplasAtualizadas.findIndex((d) => d.id === duplaId);
+  if (indexDupla !== -1) {
+    const dupla = { ...duplasAtualizadas[indexDupla] };
+    dupla.pontuacaoTotal += rodadaConcluida.resultado.pontosGanhos;
+    duplasAtualizadas[indexDupla] = dupla;
+  }
+
+  store.setState({
+    rodadaAtual: rodadaConcluida,
+    duplas: duplasAtualizadas,
+    historicoRodadas: [...state.historicoRodadas, rodadaConcluida]
+  });
+
+  console.log(`[Núcleo] Pontuação aplicada! Dupla ${duplaId} ganhou ${rodadaConcluida.resultado.pontosGanhos} pontos.`);
+});
 
 const appDiv = document.querySelector<HTMLDivElement>('#app');
 
