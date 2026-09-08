@@ -4,6 +4,7 @@ import { bus } from './core/events';
 import { iniciarCotacoes } from './features/cotacoes';
 import { calculoPontuacaoScreen } from './features/calculo-pontuacao';
 import { boasVindasScreen, setupDuplasScreen } from './features/setup-duplas';
+import { selecaoObjetoScreen } from './features/selecao-objeto';
 
 const screens = new Map();
 function registrarScreen(screen) {
@@ -13,6 +14,7 @@ function registrarScreen(screen) {
 registrarScreen(calculoPontuacaoScreen);
 registrarScreen(boasVindasScreen);
 registrarScreen(setupDuplasScreen);
+registrarScreen(selecaoObjetoScreen);
 
 bus.on('pontuacao:calculada', ({ duplaId, rodadaConcluida }) => {
   const state = store.getState();
@@ -66,6 +68,23 @@ bus.on('sessao:reiniciada', () => {
 bus.on('duplas:definidas', ({ duplas }) => {
   store.setState({ duplas });
   console.log('[Núcleo] Duplas definidas no estado:', duplas);
+});
+
+bus.on('rodada:iniciada', (payload) => {
+  console.log(`[Núcleo] Iniciando turno da dupla ${payload.duplaId} na rodada ${payload.numero}`);
+});
+
+bus.on('objeto:selecionado', ({ objeto }) => {
+  const state = store.getState();
+  
+  const rodadaAtual = {
+    ...state.rodadaAtual,
+    objeto: objeto,
+    palpites: []
+  };
+
+  store.setState({ rodadaAtual });
+  console.log('[Núcleo] Objeto sorteado e salvo no estado:', objeto.nome);
 });
 
 iniciarCotacoes(bus);
