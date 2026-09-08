@@ -9,7 +9,9 @@
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "noImplicitAny": false,
+    "types": ["vite/client"]
   },
   "include": ["core/**/*", "shared/**/*", "main.ts", "vite.config.ts"]
 }
