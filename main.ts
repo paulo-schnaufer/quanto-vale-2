@@ -9,6 +9,7 @@ import { capturaPalpiteScreen } from './features/captura-palpite';
 import { proximaDuplaDaRodada } from './core/screen-router';
 import { revelacaoCedulasScreen } from './features/revelacao-cedulas';
 import { configuracoesScreen } from './features/configuracoes';
+import { placarVitrineScreen } from './features/placar-vitrine';
 
 const screens = new Map();
 function registrarScreen(screen) {
@@ -22,6 +23,7 @@ registrarScreen(selecaoObjetoScreen);
 registrarScreen(capturaPalpiteScreen);
 registrarScreen(revelacaoCedulasScreen);
 registrarScreen(configuracoesScreen);
+registrarScreen(placarVitrineScreen);
 
 window.addEventListener('keydown', (evento) => {
   if (evento.key === 'F2') {

@@ -1,0 +1,109 @@
+/* features/placar-vitrine/placar-vitrine.css
+   Escopado por prefixo .pv- para não vazar para outras telas. */
+
+.pv-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2rem;
+  width: 100%;
+  height: 100%;
+  padding: 3rem 2rem;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.pv-titulo {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  margin: 0;
+}
+
+.pv-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.pv-item {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1rem 1.5rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+}
+
+.pv-item--primeiro {
+  background: var(--pv-cor-destaque, #f7b500);
+  color: #1a1400;
+  padding: 1.5rem 1.75rem;
+  font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+  font-weight: 800;
+  transform: scale(1.03);
+  box-shadow: 0 0 0 3px rgba(247, 181, 0, 0.35);
+}
+
+.pv-posicao {
+  flex: 0 0 auto;
+  min-width: 2.5em;
+  font-weight: 800;
+  opacity: 0.85;
+}
+
+.pv-nome {
+  flex: 1 1 auto;
+  text-align: left;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.pv-pontos {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.pv-etiqueta-empate {
+  flex: 0 0 auto;
+  font-size: 0.65em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.2em 0.6em;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.pv-item--primeiro .pv-etiqueta-empate {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.pv-vazio {
+  font-size: 1.25rem;
+  opacity: 0.8;
+}
+
+.pv-botao-nova-partida {
+  margin-top: 1rem;
+  padding: 1rem 2.5rem;
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  font-weight: 800;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  background: var(--pv-cor-destaque, #f7b500);
+  color: #1a1400;
+}
+
+.pv-botao-nova-partida:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
