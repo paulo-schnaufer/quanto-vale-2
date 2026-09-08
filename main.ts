@@ -56,12 +56,12 @@ bus.on('duplas:definidas', (payload: any) => store.setState({ duplas: payload?.d
 
 bus.on('objeto:selecionado', (payload: any) => {
   const rodadaAntiga = store.getState().rodadaAtual || {};
-  store.setState({ rodadaAtual: { ...rodadaAntiga, objeto: payload?.objeto, palpites: [] } });
+  store.setState({ rodadaAtual: { ...rodadaAntiga, objeto: payload?.objeto, palpites: [] } as any });
 });
 
 bus.on('cedula:revelada', (payload: any) => {
   const rodadaAntiga = store.getState().rodadaAtual || {};
-  store.setState({ rodadaAtual: { ...rodadaAntiga, cedulaEmRevelacao: payload } });
+  store.setState({ rodadaAtual: { ...rodadaAntiga, cedulaEmRevelacao: payload } as any });
 });
 
 bus.on('configuracoes:atualizadas', (novasConfig: any) => {
@@ -74,9 +74,9 @@ bus.on('palpite:enviado', (payload: any) => {
   const duplaAtual = proximaDuplaDaRodada(state);
   if (!duplaAtual) return;
   const novoPalpite = { duplaId: duplaAtual.id, ...payload };
-  const rodadaAntiga = state.rodadaAtual || {};
+  const rodadaAntiga: any = state.rodadaAtual || {};
   const palpitesAntigos = rodadaAntiga.palpites || [];
-  store.setState({ rodadaAtual: { ...rodadaAntiga, palpites: [...palpitesAntigos, novoPalpite] } });
+  store.setState({ rodadaAtual: { ...rodadaAntiga, palpites: [...palpitesAntigos, novoPalpite] } as any });
 });
 
 iniciarCotacoes(bus);
