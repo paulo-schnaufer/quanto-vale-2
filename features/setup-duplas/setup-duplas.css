@@ -1,0 +1,138 @@
+/* features/setup-duplas/setup-duplas.css
+ *
+ * Estilos isolados desta feature. Usa variáveis de shared/theme.css
+ * quando disponíveis (com fallback embutido), sem depender de nenhuma
+ * classe definida por outra feature.
+ */
+
+.sd-boas-vindas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  cursor: pointer;
+  outline: none;
+  background: var(--sd-bg, #0b0b12);
+  color: var(--sd-fg, #ffffff);
+  text-align: center;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.sd-boas-vindas__chamada {
+  font-size: clamp(3rem, 10vw, 8rem);
+  font-weight: 800;
+  margin: 0 0 1rem 0;
+  animation: sd-pulsar 1.6s ease-in-out infinite;
+}
+
+.sd-boas-vindas__subtitulo {
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  opacity: 0.85;
+  margin: 0;
+}
+
+@keyframes sd-pulsar {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+.sd-setup {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  max-width: 720px;
+  margin: 0 auto;
+  height: 100%;
+  padding: 2rem;
+  box-sizing: border-box;
+  background: var(--sd-bg, #0b0b12);
+  color: var(--sd-fg, #ffffff);
+}
+
+.sd-setup__titulo {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+}
+
+.sd-setup__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.sd-setup__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.sd-setup__label {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.sd-setup__input {
+  font-size: 1.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 3px solid var(--sd-borda, #ffffff);
+  background: var(--sd-bg-input, #16161f);
+  color: var(--sd-fg, #ffffff);
+}
+
+.sd-setup__input:focus-visible {
+  outline: 4px solid var(--sd-destaque, #ffd60a);
+  outline-offset: 2px;
+}
+
+.sd-setup__botao-adicionar,
+.sd-setup__botao-comecar {
+  font-size: 1.25rem;
+  font-weight: 700;
+  padding: 0.9rem 1.5rem;
+  border-radius: 0.6rem;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.sd-setup__botao-adicionar {
+  background: var(--sd-bg-input, #16161f);
+  color: var(--sd-fg, #ffffff);
+  border: 3px solid var(--sd-borda, #ffffff);
+}
+
+.sd-setup__botao-adicionar:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sd-setup__botao-comecar {
+  background: var(--sd-destaque, #ffd60a);
+  color: #111;
+}
+
+.sd-setup__botao-comecar:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sd-setup__botao-adicionar:focus-visible,
+.sd-setup__botao-comecar:focus-visible {
+  outline: 4px solid var(--sd-destaque, #ffd60a);
+  outline-offset: 2px;
+}
+
+.sd-setup__erro {
+  color: var(--sd-erro, #ff6b6b);
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin: 0 0 1rem 0;
+}

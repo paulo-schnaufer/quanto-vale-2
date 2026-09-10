@@ -1,9 +1,79 @@
 [
   {
+    "paisISO": "ar",
+    "nomePais": "Argentina",
+    "codigoISO4217": "ARS",
+    "denominacao": 1000,
+    "arquivo": "ar_ars_1000.png"
+  },
+  {
+    "paisISO": "au",
+    "nomePais": "Austrália",
+    "codigoISO4217": "AUD",
+    "denominacao": 100,
+    "arquivo": "au_aud_100.png"
+  },
+  {
+    "paisISO": "br",
+    "nomePais": "Brasil",
+    "codigoISO4217": "BRL",
+    "denominacao": 100,
+    "arquivo": "br_brl_100.png"
+  },
+  {
+    "paisISO": "ca",
+    "nomePais": "Canadá",
+    "codigoISO4217": "CAD",
+    "denominacao": 100,
+    "arquivo": "ca_cad_100.png"
+  },
+  {
+    "paisISO": "cn",
+    "nomePais": "China",
+    "codigoISO4217": "CNY",
+    "denominacao": 50,
+    "arquivo": "cn_cny_50.png"
+  },
+  {
+    "paisISO": "eu",
+    "nomePais": "União Europeia",
+    "codigoISO4217": "EUR",
+    "denominacao": 100,
+    "arquivo": "eu_eur_100.png"
+  },
+  {
+    "paisISO": "gb",
+    "nomePais": "Reino Unido",
+    "codigoISO4217": "GBP",
+    "denominacao": 50,
+    "arquivo": "gb_gbp_50.png"
+  },
+  {
+    "paisISO": "jp",
+    "nomePais": "Japão",
+    "codigoISO4217": "JPY",
+    "denominacao": 10000,
+    "arquivo": "jp_jpy_10000.png"
+  },
+  {
+    "paisISO": "kw",
+    "nomePais": "Kuwait",
+    "codigoISO4217": "KWD",
+    "denominacao": 20,
+    "arquivo": "kw_kwd_20.png"
+  },
+  {
     "paisISO": "us",
     "nomePais": "Estados Unidos",
     "codigoISO4217": "USD",
     "denominacao": 100,
-    "arquivo": "us_usd_100.jpg"
+    "arquivo": "us_usd_100.png"
+  },
+  {
+    "paisISO": "za",
+    "nomePais": "África do Sul",
+    "codigoISO4217": "ZAR",
+    "denominacao": 200,
+    "arquivo": "za_zar_200.png"
   }
 ]

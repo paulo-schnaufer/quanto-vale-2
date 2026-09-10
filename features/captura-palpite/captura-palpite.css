@@ -1,0 +1,177 @@
+/* features/captura-palpite/captura-palpite.css
+ *
+ * Assume que shared/theme.css já define variáveis globais de cor e fonte.
+ * Os fallbacks abaixo (segundo valor de cada var()) permitem que este
+ * arquivo funcione isoladamente; ajuste os nomes de variável para os
+ * tokens reais de shared/theme.css quando esse arquivo estiver disponível.
+ */
+
+.captura-palpite {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  width: 100%;
+  height: 100%;
+  padding: 2rem;
+  box-sizing: border-box;
+  color: var(--cor-texto, #1a1a1a);
+  font-family: var(--fonte-principal, system-ui, sans-serif);
+  text-align: center;
+}
+
+/* ---- Objeto em jogo (contexto visual, nunca mostra preço) ---- */
+
+.captura-palpite__objeto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.captura-palpite__objeto-imagem {
+  max-width: min(40vw, 320px);
+  max-height: 28vh;
+  object-fit: contain;
+}
+
+.captura-palpite__objeto-nome {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 700;
+  margin: 0;
+}
+
+/* ---- Anel de contagem regressiva ---- */
+
+.captura-palpite__anel-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(140px, 18vw, 220px);
+  height: clamp(140px, 18vw, 220px);
+  --cor-tempo: var(--cor-sucesso, #2ecc71);
+}
+
+.captura-palpite__anel {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.captura-palpite__anel-fundo {
+  fill: none;
+  stroke: var(--cor-superficie-alt, #e0e0e0);
+  stroke-width: 10;
+}
+
+.captura-palpite__anel-progresso {
+  fill: none;
+  stroke: var(--cor-tempo);
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.1s linear, stroke 0.3s ease;
+}
+
+.captura-palpite__segundos {
+  position: absolute;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--cor-tempo);
+  transition: color 0.3s ease;
+}
+
+.captura-palpite--verde {
+  --cor-tempo: var(--cor-sucesso, #2ecc71);
+}
+
+.captura-palpite--amarelo {
+  --cor-tempo: var(--cor-alerta, #f1c40f);
+}
+
+.captura-palpite--vermelho {
+  --cor-tempo: var(--cor-erro, #e74c3c);
+}
+
+/* ---- Formulário de palpite ---- */
+
+.captura-palpite__form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: min(90vw, 480px);
+}
+
+.captura-palpite__label {
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-weight: 600;
+}
+
+.captura-palpite__campo-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 1.25rem;
+  border-radius: 1rem;
+  border: 3px solid var(--cor-borda, #cccccc);
+  background: var(--cor-superficie, #ffffff);
+}
+
+.captura-palpite__campo-wrapper:focus-within {
+  border-color: var(--cor-destaque, #3498db);
+}
+
+.captura-palpite__prefixo {
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 700;
+  color: var(--cor-texto-secundario, #666666);
+}
+
+.captura-palpite__input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--cor-texto, #1a1a1a);
+  min-width: 0;
+}
+
+.captura-palpite__input--erro {
+  color: var(--cor-erro, #e74c3c);
+}
+
+.captura-palpite__erro {
+  min-height: 1.5em;
+  margin: 0;
+  color: var(--cor-erro, #e74c3c);
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-weight: 600;
+}
+
+.captura-palpite__botao {
+  padding: 0.85rem 2.5rem;
+  border: none;
+  border-radius: 1rem;
+  background: var(--cor-destaque, #3498db);
+  color: var(--cor-sobre-destaque, #ffffff);
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.captura-palpite__botao:focus-visible {
+  outline: 4px solid var(--cor-foco, #2c3e50);
+  outline-offset: 2px;
+}
+
+.captura-palpite__botao:active {
+  transform: scale(0.98);
+}

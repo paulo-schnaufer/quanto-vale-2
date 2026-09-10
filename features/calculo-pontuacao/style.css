@@ -1,0 +1,84 @@
+/* features/calculo-pontuacao/style.css
+ *
+ * Escopo local à feature. Assume que core/global.css já define reset,
+ * fontes base e variáveis de tema; aqui só o que é específico desta tela.
+ */
+
+.calculo-pontuacao {
+  --faixa-maxima: #2e7d32; /* verde */
+  --faixa-media: #f9a825; /* amarelo */
+  --faixa-baixa: #ef6c00; /* laranja */
+  --faixa-zero: #c62828; /* vermelho */
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  min-height: 100%;
+  padding: 3rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  color: #fff;
+  background: var(--faixa-cor-ativa, #333);
+  transition: background-color 200ms ease;
+}
+
+.calculo-pontuacao__feedback {
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  margin: 0;
+}
+
+.calculo-pontuacao__dupla {
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 600;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.calculo-pontuacao__comparacao {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  width: 100%;
+  max-width: 720px;
+}
+
+.calculo-pontuacao__cartao {
+  flex: 1 1 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.calculo-pontuacao__cartao-rotulo {
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+}
+
+.calculo-pontuacao__cartao-valor {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.calculo-pontuacao__pontos {
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  font-weight: 800;
+  margin: 0;
+}
+
+.calculo-pontuacao__dica {
+  font-size: 1rem;
+  opacity: 0.75;
+  margin: 0;
+}

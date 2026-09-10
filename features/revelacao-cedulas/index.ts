@@ -1,0 +1,1 @@
+export { revelacaoCedulasScreen } from './revelacao-cedulas.screen';

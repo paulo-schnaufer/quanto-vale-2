@@ -1,0 +1,62 @@
+/* features/selecao-objeto/style.css
+ *
+ * Classes com prefixo `selecao-objeto__` para evitar colisão com outras
+ * features. Usa var(--..., fallback) para herdar tokens do CSS global de
+ * core/ quando existirem, sem depender deles para funcionar sozinho.
+ */
+
+.tela-selecao-objeto {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cor-fundo, #10141a);
+  cursor: pointer;
+  user-select: none;
+}
+
+.selecao-objeto__cartao {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(24px, 4vh, 56px);
+  padding: clamp(24px, 5vw, 64px);
+}
+
+.selecao-objeto__imagem-wrap {
+  width: min(60vw, 640px);
+  height: min(60vw, 640px);
+  border-radius: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.35);
+}
+
+.selecao-objeto__imagem {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.selecao-objeto__imagem-fallback {
+  font-family: var(--fonte-principal, inherit);
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  padding: 0 24px;
+}
+
+.selecao-objeto__nome {
+  font-family: var(--fonte-principal, inherit);
+  font-size: clamp(40px, 6vw, 96px);
+  font-weight: 800;
+  color: var(--cor-texto, #ffffff);
+  text-align: center;
+  margin: 0;
+  line-height: 1.1;
+}

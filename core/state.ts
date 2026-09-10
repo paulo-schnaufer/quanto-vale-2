@@ -1,13 +1,13 @@
-import { GameState } from './types';
+import type { GameState } from './types';
 
 export const ESTADO_INICIAL: GameState = {
   telaAtiva: 'boas-vindas',
-  rodadaAtual: 1,
+  telaAtual: 'boas-vindas',
   duplas: [],
-  objetoAtual: null,
-  palpitesRodadaAtual: [],
-  cotacoes: {},
+  rodadaAtual: null,
   historicoRodadas: [],
+  cotacoes: {},
+  cedulaEmRevelacao: null,
   configuracoes: {
     numeroDeRodadas: 3,
     tempoLimiteSegundosPorPalpite: 30,
