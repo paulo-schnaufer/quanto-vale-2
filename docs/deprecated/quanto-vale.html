@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Quanto Vale? — PET Economia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Paleta atual é um placeholder verde+dourado. Trocar pelas cores oficiais do
+     PET Economia quando disponíveis — é só editar estas variáveis. */
+  :root{
+    --bg: #EFF3EA; --paper: #FFFFFF; --ink: #1B2A22; --ink-soft: #4C5C52; --line: #D8E0D2;
+    --green: #1F7A5C; --green-dark: #145240; --gold: #D9A441; --gold-dark: #9C7326;
+    --danger: #C0392B; --radius: 20px;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; height:100%; background: var(--bg); color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif; overflow: hidden; -webkit-user-select:none; user-select:none; }
+  #stage{ position: relative; width: 100vw; height: 100vh; display:flex; align-items:center; justify-content:center; }
+  .screen{ position:absolute; inset:0; display:none; flex-direction:column; align-items:center; padding: 2.6vh 4vw; text-align:center; }
+  .screen.active{ display:flex; }
+  h1,h2,h3{ font-family:'Fredoka', system-ui, sans-serif; font-weight:600; margin:0; }
+
+  .big-btn{ font-family:'Fredoka', sans-serif; font-size: 3vh; font-weight:600; color: #fff;
+    background: var(--green); border: none; border-radius: 999px; padding: 2vh 4vw; cursor: pointer;
+    box-shadow: 0 6px 0 var(--green-dark); transition: transform .08s ease; }
+  .big-btn:active{ transform: translateY(4px); box-shadow: 0 2px 0 var(--green-dark); }
+  .big-btn.secondary{ background: var(--paper); color: var(--green-dark); box-shadow: 0 6px 0 var(--line); border: 2px solid var(--line); }
+  .big-btn.secondary:active{ box-shadow: 0 2px 0 var(--line); }
+  .big-btn.small{ font-size: 2vh; padding: 1.1vh 2.4vw; box-shadow: 0 4px 0 var(--green-dark); }
+  .big-btn.gold{ background: var(--gold); box-shadow: 0 6px 0 var(--gold-dark); color: var(--gold-dark); }
+  .big-btn.gold:active{ box-shadow: 0 2px 0 var(--gold-dark); }
+
+  .top-bar{ display:flex; align-items:center; justify-content:space-between; width:100%; margin-bottom: 1vh; }
+  .top-bar h2{ font-size: 2.6vh; color: var(--green-dark); }
+  .top-left, .top-right{ display:flex; gap: 0.8vw; }
+  .icon-btn{ font-size: 2.4vh; color: var(--ink-soft); background: var(--paper); border: 2px solid var(--line);
+    border-radius: 50%; width: 5vh; height:5vh; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+
+  /* ---------- BRANDING (fixo em todas as telas) ---------- */
+  .brand-corner{ position:fixed; top:1.6vh; left:1.6vw; display:flex; align-items:center; gap:0.6vw; z-index:6; pointer-events:none; }
+  .brand-corner img{ height:4.4vh; display:block; }
+  .brand-corner .brand-fallback{ font-family:'Fredoka',sans-serif; font-weight:600; font-size:1.7vh; color:var(--green-dark);
+    background: var(--paper); padding:0.7vh 1.1vw; border-radius:999px; border:2px solid var(--line); }
+
+  /* ---------- ATTRACT / START ---------- */
+  #screen-start{ justify-content:center; overflow:hidden; }
+  #attract-floats{ position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+  .attract-float{ position:absolute; font-size:5vh; opacity:0.14; animation-name: floaty; animation-timing-function: linear; animation-iteration-count: infinite; }
+  @keyframes floaty{ from{ transform: translateY(112vh) rotate(0deg);} to{ transform: translateY(-16vh) rotate(360deg);} }
+  #screen-start .coin{ font-size: 8vh; margin-bottom: 1vh; animation: pulse 1.8s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.08);} }
+  #screen-start h1{ font-size: 6.6vh; color: var(--green-dark); letter-spacing: -0.01em; }
+  #screen-start p{ font-size: 2.4vh; color: var(--ink-soft); max-width: 60vw; margin: 1.6vh 0 3.4vh; }
+  .attract-cta{ animation: pulse 1.6s ease-in-out infinite; }
+  .qr-block{ position:absolute; bottom:2.4vh; right:2vw; display:flex; flex-direction:column; align-items:center; gap:0.5vh; }
+  .qr-block img{ width:9vh; height:9vh; border-radius:8px; border:2px solid var(--line); background:#fff; padding:0.4vh; }
+  .qr-block span{ font-size:1.3vh; color:var(--ink-soft); max-width:12vh; }
+
+  /* ---------- TEAM SETUP ---------- */
+  #screen-teams{ justify-content:center; }
+  #screen-teams h2{ font-size: 3.6vh; color: var(--green-dark); margin-bottom: 0.6vh; }
+  #screen-teams p{ font-size: 2.2vh; color: var(--ink-soft); margin-bottom: 2.4vh; }
+  .team-count-row{ display:flex; gap: 1.4vw; margin-bottom: 3vh; }
+  .team-count-row button{ font-family:'Fredoka', sans-serif; font-size: 3.4vh; font-weight:600;
+    width: 8vh; height: 8vh; border-radius: 50%; border: 3px solid var(--line); background: var(--paper); cursor:pointer; color: var(--ink); }
+  .team-count-row button.selected{ background: var(--green); color:#fff; border-color: var(--green-dark); }
+
+  /* ---------- OBJECT PICKER ---------- */
+  #screen-pick{ justify-content:flex-start; }
+  .pick-scroll{ width: 92vw; max-width: 1100px; flex:1; overflow-y:auto;
+    display:grid; grid-template-columns: repeat(6, 1fr); gap: 1vh 1vw; padding: 0.5vh 0.3vw 2vh; }
+  .obj-card{ background: var(--paper); border: 2px solid var(--line); border-radius: 14px; padding: 1.1vh 0.4vw;
+    display:flex; flex-direction:column; align-items:center; gap:0.4vh; cursor:pointer; }
+  .obj-card:active{ background: var(--bg); }
+  .obj-card .emoji{ font-size: 3.4vh; }
+  .obj-card .name{ font-size: 1.4vh; font-weight:600; line-height:1.2; }
+
+  /* ---------- KEYPAD SCREENS ---------- */
+  .kp-screen{ justify-content:flex-start; padding-top: 1.6vh; }
+  .turn-label{ font-family:'Fredoka', sans-serif; font-size: 2.6vh; font-weight:600; color: var(--gold-dark);
+    background: var(--paper); border: 2px solid var(--gold); border-radius: 999px; padding: 0.6vh 2.4vw; margin-bottom: 1vh; }
+  .timer-track{ width: 40vw; max-width: 420px; height: 1.4vh; background: var(--line); border-radius: 999px; overflow:hidden; margin-bottom: 1.2vh; }
+  .timer-fill{ height:100%; background: var(--green); border-radius: 999px; width:100%; transition: width 1s linear, background .3s ease; }
+  .timer-fill.urgent{ background: var(--danger); }
+  .kp-object-emoji{ font-size: 10vh; line-height:1; margin: 0.3vh 0; }
+  .kp-object-name{ font-size: 3.2vh; color: var(--green-dark); margin-bottom: 0.3vh; }
+  .kp-instruction{ font-size: 2vh; color: var(--ink-soft); margin-bottom: 1.2vh; }
+  .amount-display{ font-family:'Fredoka', sans-serif; font-size: 4.8vh; font-weight:700; background: var(--paper);
+    border: 3px solid var(--green); border-radius: var(--radius); padding: 0.8vh 3vw; min-width: 32vw; margin-bottom: 1.2vh; color: var(--green-dark); }
+  .keypad{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 1vh; width: 38vw; max-width: 400px; }
+  .keypad button{ font-family:'Fredoka', sans-serif; font-size: 3vh; font-weight:600; padding: 1.2vh 0;
+    background: var(--paper); border: 2px solid var(--line); border-radius: 14px; color: var(--ink); cursor:pointer; }
+  .keypad button:active{ background: var(--bg); }
+  .keypad button.action{ background: var(--gold); color: var(--gold-dark); border-color: var(--gold); }
+  .keypad button.confirm{ background: var(--green); color:#fff; border-color: var(--green-dark); grid-column: span 3; font-size: 2.4vh; }
+  .error-msg{ color: var(--danger); font-size: 1.8vh; font-weight:600; height: 2.6vh; margin-top: 0.6vh; }
+
+  /* ---------- ROUND RESULT ---------- */
+  #screen-roundresult{ justify-content:flex-start; padding-top: 2vh; overflow:hidden; }
+  .rr-real{ font-family:'Fredoka', sans-serif; font-size: 3.6vh; font-weight:700; color: var(--green-dark); margin-bottom: 1.4vh; }
+  .rr-list{ width: 70vw; max-width: 760px; display:flex; flex-direction:column; gap: 1vh; margin-bottom: 1.6vh; }
+  .rr-row{ display:flex; align-items:center; justify-content:space-between; background: var(--paper);
+    border: 2px solid var(--line); border-radius: 14px; padding: 1.2vh 2vw; opacity:0; transform: translateX(-12px);
+    transition: opacity .4s ease, transform .4s ease; }
+  .rr-row.show{ opacity:1; transform: translateX(0); }
+  .rr-row.winner{ border-color: var(--gold); background: #FFF8EA; }
+  .rr-row.winner.show{ animation: winnerGlow 1.4s ease-in-out infinite; }
+  @keyframes winnerGlow{ 0%,100%{ box-shadow:0 0 0 0 rgba(217,164,65,0.45);} 50%{ box-shadow:0 0 0 10px rgba(217,164,65,0);} }
+  .rr-rank{ font-family:'Fredoka', sans-serif; font-size: 2.6vh; font-weight:700; color: var(--ink-soft); width: 3vw; }
+  .rr-team{ flex:1; text-align:left; font-size: 2.4vh; font-weight:600; padding-left: 1vw; }
+  .rr-guess{ font-size: 2vh; color: var(--ink-soft); }
+  .rr-points{ font-family:'Fredoka', sans-serif; font-size: 2.4vh; font-weight:700; color: var(--green-dark); min-width: 8vw; text-align:right; }
+  .rr-actions{ display:flex; gap: 2vw; margin-top: 0.6vh; }
+  .prize-note{ font-size: 1.9vh; color: var(--gold-dark); font-weight:600; margin-top: 1vh; }
+
+  .confetti-piece{ position:absolute; top:-4vh; width: 1.2vh; height: 2.2vh; opacity:0.9; pointer-events:none; }
+  #screen-flash{ position:fixed; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:30; }
+
+  /* ---------- LEADERBOARD / VITRINE ---------- */
+  #screen-leaderboard{ justify-content:flex-start; padding-top: 2.4vh; }
+  #screen-leaderboard h2{ font-size: 3.6vh; color: var(--green-dark); margin-bottom: 0.4vh; }
+  .lb-list{ width: 64vw; max-width: 700px; display:flex; flex-direction:column; gap: 1.2vh; margin-top: 1.6vh; }
+  .lb-row{ display:flex; align-items:center; gap: 1.4vw; background: var(--paper); border: 2px solid var(--line);
+    border-radius: 14px; padding: 1.4vh 2vw; }
+  .lb-row.first{ border-color: var(--gold); background: #FFF8EA; }
+  .lb-medal{ font-size: 3vh; width: 4vw; }
+  .lb-info{ flex:1; text-align:left; }
+  .lb-info .lb-obj{ font-size: 1.7vh; color: var(--ink-soft); }
+  .lb-score{ font-family:'Fredoka', sans-serif; font-size: 2.8vh; font-weight:700; color: var(--green-dark); }
+  .lb-empty{ color: var(--ink-soft); font-size: 2vh; margin-top: 2vh; }
+
+  /* ---------- CURRENCY REVEAL ---------- */
+  #screen-reveal{ justify-content:flex-start; padding-top: 1.4vh; }
+  .reveal-object{ font-size: 2.4vh; color: var(--ink-soft); margin-bottom: 0.4vh; }
+  .rates-note{ font-size: 1.6vh; color: var(--ink-soft); margin-bottom: 1vh; }
+  .reveal-scroll{ width:100%; flex:1; overflow-y:auto; display:flex; flex-direction:column; align-items:center; padding-bottom: 1vh; }
+
+  .note-grid{ width:92vw; max-width:1200px; display:grid; grid-template-columns:repeat(5,1fr); gap:1vw; margin-bottom:2vh; }
+  .note-card{ background:var(--paper); border:2px solid var(--line); border-radius:16px; padding:1vh; display:flex; flex-direction:column;
+    align-items:center; gap:0.6vh; opacity:0; transform: translateY(14px) scale(0.96); transition: opacity .5s ease, transform .5s ease; }
+  .note-card.show{ opacity:1; transform:translateY(0) scale(1); }
+  .note-photo{ width:100%; aspect-ratio: 2.1/1; border-radius:10px; overflow:hidden; position:relative;
+    background:linear-gradient(135deg,var(--green),var(--green-dark)); display:flex; align-items:center; justify-content:center; }
+  .note-photo img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .note-photo .note-fallback{ display:none; flex-direction:column; align-items:center; justify-content:center; color:#fff;
+    font-family:'Fredoka',sans-serif; width:100%; height:100%; gap:0.2vh; }
+  .note-photo .note-fallback .flag{ font-size:2.8vh; }
+  .note-photo .note-fallback .code{ font-size:1.9vh; font-weight:700; letter-spacing:0.06em; }
+  .note-country{ font-size:1.6vh; font-weight:600; color:var(--green-dark); }
+  .note-value{ font-family:'Fredoka', sans-serif; font-size: 2.3vh; font-weight:700; color: var(--ink); }
+  .note-fact{ font-size:1.2vh; color:var(--ink-soft); line-height:1.35; }
+
+  .curr-grid{ width: 90vw; max-width: 1080px; display:grid; grid-template-columns: repeat(6, 1fr); gap: 1vh 0.8vw; padding: 0.4vh 0.3vw; }
+  .curr-card{ background: var(--paper); border: 2px solid var(--line); border-top: 5px solid var(--green);
+    border-radius: 12px; padding: 1vh 0.3vw; display:flex; flex-direction:column; align-items:center; gap:0.3vh;
+    opacity:0; transform: translateY(8px); transition: opacity .4s ease, transform .4s ease; }
+  .curr-card.show{ opacity:1; transform: translateY(0); }
+  .curr-card .curr-flag{ font-size: 2.4vh; line-height:1; }
+  .curr-card .curr-label{ font-size: 1.3vh; color: var(--ink-soft); font-weight:600; }
+  .curr-card .curr-value{ font-family:'Fredoka', sans-serif; font-size: 1.8vh; font-weight:700; color: var(--ink); white-space:nowrap; }
+  .reveal-actions{ margin-top: 1.6vh; display:flex; gap: 2vw; }
+
+  /* ---------- SETTINGS ---------- */
+  #screen-settings{ justify-content:center; }
+  #screen-settings h2{ font-size: 3.2vh; color: var(--green-dark); margin-bottom: 1.4vh; }
+  #screen-settings p{ font-size: 2vh; color: var(--ink-soft); max-width: 56vw; margin-bottom: 0.8vh; }
+  .settings-actions{ margin-top: 2vh; display:flex; gap:2vw; flex-wrap:wrap; justify-content:center; }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <div class="brand-corner" id="brand-corner">
+    <img src="assets/logo-pet.png" alt="PET Economia" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+    <span class="brand-fallback" style="display:none;">PET Economia</span>
+  </div>
+  <div id="screen-flash"></div>
+
+  <!-- START / ATRAÇÃO -->
+  <div class="screen active" id="screen-start">
+    <div id="attract-floats"></div>
+    <div class="coin">💱</div>
+    <h1>Quanto vale?</h1>
+    <p>Um jogo de câmbio do PET Economia: duplas competem chutando o preço real de objetos e ganham pontos por chegar perto — e ainda descobrem quanto isso custaria em moedas do mundo todo.</p>
+    <button class="big-btn attract-cta" id="btn-start">Toquem para começar</button>
+    <div class="qr-block">
+      <img id="qr-img" alt="QR code" style="display:none;">
+      <span id="qr-label" style="display:none;">Siga o PET Economia</span>
+    </div>
+  </div>
+
+  <!-- TEAM SETUP -->
+  <div class="screen" id="screen-teams">
+    <h2>Quantas duplas vão jogar essa rodada?</h2>
+    <p>Cada dupla faz um palpite. Quem chegar mais perto do preço real ganha mais pontos.</p>
+    <div class="team-count-row" id="team-count-row">
+      <button data-n="2">2</button><button data-n="3">3</button><button data-n="4">4</button>
+      <button data-n="5">5</button><button data-n="6">6</button>
+    </div>
+    <button class="big-btn" id="btn-confirm-teams">Começar</button>
+  </div>
+
+  <!-- PICK OBJECT -->
+  <div class="screen" id="screen-pick">
+    <div class="top-bar">
+      <div class="top-left">
+        <div class="icon-btn" id="btn-open-settings" title="Cotações">⚙</div>
+        <div class="icon-btn" id="btn-open-leaderboard" title="Recorde do dia">🏆</div>
+      </div>
+      <h2 id="pick-title">Escolham um objeto</h2>
+      <div class="top-right">
+        <button class="big-btn small gold" id="btn-random-object">🎲 Sortear</button>
+      </div>
+    </div>
+    <div class="pick-scroll" id="pick-scroll"></div>
+  </div>
+
+  <!-- SET REAL PRICE -->
+  <div class="screen kp-screen" id="screen-setprice">
+    <div class="kp-object-emoji" id="setprice-emoji">🍫</div>
+    <div class="kp-object-name" id="setprice-name">Barra de chocolate</div>
+    <div class="kp-instruction">Digite o preço real desse objeto hoje, em reais</div>
+    <div class="amount-display">R$ <span id="setprice-value">0</span></div>
+    <div class="keypad" id="keypad-price">
+      <button data-key="1">1</button><button data-key="2">2</button><button data-key="3">3</button>
+      <button data-key="4">4</button><button data-key="5">5</button><button data-key="6">6</button>
+      <button data-key="7">7</button><button data-key="8">8</button><button data-key="9">9</button>
+      <button class="action" data-key="back">⌫</button><button data-key="0">0</button><button class="action" data-key="clear">C</button>
+      <button class="confirm" id="btn-confirm-price">Confirmar preço real</button>
+    </div>
+    <div class="error-msg" id="setprice-error"></div>
+  </div>
+
+  <!-- GUESS (per team, timed) -->
+  <div class="screen kp-screen" id="screen-guess">
+    <div class="turn-label" id="turn-label">Vez da Dupla 1</div>
+    <div class="timer-track"><div class="timer-fill" id="timer-fill"></div></div>
+    <div class="kp-object-emoji" id="guess-emoji">🍫</div>
+    <div class="kp-object-name" id="guess-name">Barra de chocolate</div>
+    <div class="kp-instruction">Quanto isso custa, em reais? Rápido!</div>
+    <div class="amount-display">R$ <span id="guess-value">0</span></div>
+    <div class="keypad" id="keypad-guess">
+      <button data-key="1">1</button><button data-key="2">2</button><button data-key="3">3</button>
+      <button data-key="4">4</button><button data-key="5">5</button><button data-key="6">6</button>
+      <button data-key="7">7</button><button data-key="8">8</button><button data-key="9">9</button>
+      <button class="action" data-key="back">⌫</button><button data-key="0">0</button><button class="action" data-key="clear">C</button>
+      <button class="confirm" id="btn-confirm-guess">Confirmar palpite</button>
+    </div>
+    <div class="error-msg" id="guess-error"></div>
+  </div>
+
+  <!-- ROUND RESULT -->
+  <div class="screen" id="screen-roundresult">
+    <h2>Resultado</h2>
+    <div class="rr-real" id="rr-real">Preço real: R$ 8</div>
+    <div class="rr-list" id="rr-list"></div>
+    <div class="prize-note">🍫 Quem pontuar mais no dia leva uma bala de chocolate!</div>
+    <div class="rr-actions">
+      <button class="big-btn secondary" id="btn-view-currencies">Ver em outras moedas</button>
+      <button class="big-btn" id="btn-to-vitrine">Ver recorde do dia →</button>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD / VITRINE PÚBLICA -->
+  <div class="screen" id="screen-leaderboard">
+    <h2>🏆 Recorde do dia</h2>
+    <div class="prize-note">🍫 Melhor pontuação do dia ganha uma bala de chocolate!</div>
+    <div class="lb-list" id="lb-list"></div>
+    <div class="rr-actions" style="margin-top:2.4vh;">
+      <button class="big-btn secondary" id="btn-leaderboard-back">Voltar</button>
+      <button class="big-btn" id="btn-new-game">Próxima dupla</button>
+    </div>
+  </div>
+
+  <!-- CURRENCY REVEAL -->
+  <div class="screen" id="screen-reveal">
+    <div class="reveal-object" id="reveal-object-name">Barra de chocolate — R$ 8</div>
+    <div class="rates-note" id="rates-note">Cotações atualizadas agora</div>
+    <div class="reveal-scroll">
+      <div class="note-grid" id="note-grid"></div>
+      <div class="curr-grid" id="curr-grid"></div>
+    </div>
+    <div class="reveal-actions">
+      <button class="big-btn" id="btn-back-to-result">Voltar ao resultado</button>
+    </div>
+  </div>
+
+  <!-- SETTINGS / STATUS -->
+  <div class="screen" id="screen-settings">
+    <h2>Cotações e dados</h2>
+    <p id="settings-status">Buscando cotações atualizadas...</p>
+    <p>Buscadas automaticamente da internet ao abrir a página. Sem sinal, o jogo usa uma tabela salva de reserva.</p>
+    <p>Toda partida jogada fica salva neste computador (localStorage), mesmo sem internet.</p>
+    <div class="settings-actions">
+      <button class="big-btn secondary" id="btn-close-settings">Voltar</button>
+      <button class="big-btn secondary" id="btn-export-data">⬇ Baixar dados (CSV)</button>
+      <button class="big-btn" id="btn-refresh-rates">Atualizar cotações</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===================== MOEDAS (conjunto reduzido e didático) =====================
+// Decisão: 5 países em destaque com "cédula" (banknote) visual + 8 outras moedas em
+// lista simples, cobrindo continentes diferentes e contrastes didáticos (moeda forte,
+// bloco econômico, moeda historicamente relevante, escala numérica muito diferente,
+// e um caso de inflação alta na região). Trocar/priorizar livremente conforme o público.
+const HIGHLIGHT_CODES = ['USD','EUR','GBP','JPY','ARS'];
+const OTHER_CODES = ['CAD','MXN','CNY','INR','ZAR','AUD','CHF'];
+
+const FALLBACK_BRL_PER_UNIT = {
+  USD:5.12, EUR:5.96, GBP:6.50, JPY:0.036, ARS:0.0034,
+  CAD:3.74, MXN:0.266, CNY:0.71, INR:0.061, ZAR:0.282, AUD:3.38, CHF:5.79
+};
+const CURRENCY_LABELS = {
+  BRL:'Brasil (R$)', USD:'Estados Unidos', EUR:'Zona do Euro', GBP:'Reino Unido', JPY:'Japão', ARS:'Argentina',
+  CAD:'Canadá', MXN:'México', CNY:'China', INR:'Índia', ZAR:'África do Sul', AUD:'Austrália', CHF:'Suíça'
+};
+const CURRENCY_FLAGS = {
+  BRL:'🇧🇷', USD:'🇺🇸', EUR:'🇪🇺', GBP:'🇬🇧', JPY:'🇯🇵', ARS:'🇦🇷',
+  CAD:'🇨🇦', MXN:'🇲🇽', CNY:'🇨🇳', INR:'🇮🇳', ZAR:'🇿🇦', AUD:'🇦🇺', CHF:'🇨🇭'
+};
+// Curiosidades curtas para as 5 moedas em destaque (tela de revelação).
+const CURRENCY_FACTS = {
+  USD:'O dólar é a moeda mais usada nas reservas internacionais dos países do mundo.',
+  EUR:'Cerca de 20 países da União Europeia usam o euro, mesmo mantendo economias próprias.',
+  GBP:'A libra esterlina é uma das moedas em circulação contínua mais antigas do mundo.',
+  JPY:'Como cada iene vale muito pouco sozinho, os preços no Japão aparecem com números bem maiores que os nossos.',
+  ARS:'A Argentina já viveu períodos de inflação muito alta, o que faz o peso perder valor rápido.'
+};
+let brlPerUnit = Object.assign({}, FALLBACK_BRL_PER_UNIT);
+let ratesAreLive = false;
+
+async function loadRates(){
+  try{
+    const res = await fetch('https://open.er-api.com/v6/latest/BRL');
+    const data = await res.json();
+    if (data && data.result === 'success' && data.rates){
+      const updated = {};
+      Object.keys(CURRENCY_LABELS).forEach(code => {
+        if (code === 'BRL') return;
+        if (data.rates[code]){ updated[code] = 1 / data.rates[code]; }
+      });
+      if (Object.keys(updated).length > 6){
+        brlPerUnit = Object.assign({}, FALLBACK_BRL_PER_UNIT, updated);
+        ratesAreLive = true;
+      }
+    }
+  } catch(e){ ratesAreLive = false; }
+  updateSettingsStatus();
+}
+function updateSettingsStatus(){
+  const el = document.getElementById('settings-status');
+  if (!el) return;
+  el.textContent = ratesAreLive
+    ? 'Cotações ao vivo carregadas com sucesso, com base no real.'
+    : 'Sem internet no momento — usando a tabela de cotações salva (aprox. de setembro de 2026).';
+}
+
+// ===================== OBJETOS =====================
+// Lista pensada para o público do 6º ano ao 3º ano do ensino médio: itens do dia a dia,
+// lanches, eletrônicos, roupas, transporte, lazer e material escolar.
+const objects = [
+  {name:'Barra de chocolate', emoji:'🍫'}, {name:'Sorvete', emoji:'🍦'}, {name:'Pão francês (unidade)', emoji:'🥖'},
+  {name:'Cafezinho', emoji:'☕'}, {name:'Pizza', emoji:'🍕'}, {name:'Hambúrguer', emoji:'🍔'},
+  {name:'Refrigerante (lata)', emoji:'🥤'}, {name:'Água mineral', emoji:'💧'}, {name:'Banana (dúzia)', emoji:'🍌'},
+  {name:'Feijão (kg)', emoji:'🫘'}, {name:'Arroz (kg)', emoji:'🍚'}, {name:'Ovos (dúzia)', emoji:'🥚'},
+  {name:'Leite (litro)', emoji:'🥛'}, {name:'Bolo de aniversário', emoji:'🎂'}, {name:'Salgado de padaria', emoji:'🥟'},
+  {name:'Açaí (copo)', emoji:'🫐'}, {name:'Marmita', emoji:'🍱'}, {name:'Pipoca de cinema', emoji:'🍿'},
+  {name:'Celular novo', emoji:'📱'}, {name:'Fone de ouvido', emoji:'🎧'}, {name:'Carregador de celular', emoji:'🔌'},
+  {name:'Notebook', emoji:'💻'}, {name:'Videogame (console)', emoji:'🎮'}, {name:'Smartwatch', emoji:'⌚'},
+  {name:'Caixa de som bluetooth', emoji:'🔊'}, {name:'Pendrive', emoji:'💾'},
+  {name:'Par de tênis', emoji:'👟'}, {name:'Camiseta', emoji:'👕'}, {name:'Calça jeans', emoji:'👖'},
+  {name:'Boné', emoji:'🧢'}, {name:'Casaco de frio', emoji:'🧥'}, {name:'Óculos de sol', emoji:'🕶️'},
+  {name:'Mochila', emoji:'🎒'}, {name:'Vestido', emoji:'👗'}, {name:'Meia (par)', emoji:'🧦'},
+  {name:'Passagem de ônibus', emoji:'🚌'}, {name:'Litro de gasolina', emoji:'⛽'}, {name:'Bicicleta', emoji:'🚲'},
+  {name:'Skate', emoji:'🛹'}, {name:'Patinete elétrico', emoji:'🛴'}, {name:'Passagem de avião nacional', emoji:'✈️'},
+  {name:'Corrida de aplicativo curta', emoji:'🚗'},
+  {name:'Ingresso de cinema', emoji:'🎬'}, {name:'Ingresso de show', emoji:'🎤'}, {name:'Livro', emoji:'📚'},
+  {name:'Revista em quadrinhos', emoji:'📖'}, {name:'Jogo de tabuleiro', emoji:'🎲'}, {name:'Entrada de parque de diversões', emoji:'🎡'},
+  {name:'Ingresso de futebol', emoji:'⚽'},
+  {name:'Caderno', emoji:'📓'}, {name:'Caneta', emoji:'🖊️'}, {name:'Estojo escolar', emoji:'✏️'},
+  {name:'Calculadora', emoji:'🧮'}, {name:'Uniforme escolar', emoji:'👔'},
+  {name:'Vassoura', emoji:'🧹'}, {name:'Panela', emoji:'🍳'}, {name:'Toalha de banho', emoji:'🛁'},
+  {name:'Ventilador', emoji:'🌀'}, {name:'Liquidificador', emoji:'🧃'}, {name:'Lâmpada', emoji:'💡'},
+  {name:'Boneco de brinquedo', emoji:'🧸'}, {name:'Pipa', emoji:'🪁'}, {name:'Quebra-cabeça', emoji:'🧩'},
+  {name:'Bola de futebol', emoji:'⚽'}, {name:'Raquete de tênis', emoji:'🎾'}, {name:'Luva de goleiro', emoji:'🧤'},
+  {name:'Garrafa de água esportiva', emoji:'🚰'},
+  {name:'Ração para cachorro (kg)', emoji:'🐶'}, {name:'Coleira de cachorro', emoji:'🐾'},
+  {name:'Corte de cabelo', emoji:'💇'}, {name:'Lavagem de carro', emoji:'🧼'}
+];
+
+// ===================== ESTADO =====================
+let teams = [];
+let numTeams = 3;
+let currentObject = null;
+let currentRealPrice = 0;
+let usedIndices = [];
+let currentTeamTurn = 0;
+let roundGuesses = [];
+let priceStr = '';
+let guessStr = '';
+let timerInterval = null;
+let timerSeconds = 15;
+const TIMER_TOTAL = 15;
+
+// ===================== SOM (juice) =====================
+let audioCtx = null;
+function ensureAudio(){
+  if (!audioCtx){ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+  if (audioCtx.state === 'suspended'){ audioCtx.resume(); }
+  return audioCtx;
+}
+function beep(freq, dur, type, vol, delay){
+  try{
+    const ctx = ensureAudio();
+    const t0 = ctx.currentTime + (delay || 0);
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol || 0.12, t0);
+    gain.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(t0); osc.stop(t0 + dur + 0.02);
+  } catch(e){ /* áudio indisponível, segue o jogo normalmente */ }
+}
+function sfxClick(){ beep(520, 0.05, 'square', 0.05); }
+function sfxTick(){ beep(880, 0.04, 'square', 0.05); }
+function sfxWin(){ [523,659,784,1046].forEach((f,i)=>beep(f,0.16,'triangle',0.11,i*0.09)); }
+function sfxReveal(){ beep(660, 0.09, 'sine', 0.07); }
+
+document.getElementById('stage').addEventListener('click', (e) => {
+  if (e.target.closest('button')) sfxClick();
+});
+
+function flashScreen(){
+  const f = document.getElementById('screen-flash');
+  f.style.transition = 'none'; f.style.opacity = '0.55';
+  requestAnimationFrame(() => { f.style.transition = 'opacity .5s ease'; f.style.opacity = '0'; });
+}
+
+// count-up simples para números revelados
+function animateCount(el, target, decimals, duration){
+  duration = duration || 700;
+  const t0 = performance.now();
+  function step(t){
+    const p = Math.min(1, (t - t0) / duration);
+    const val = target * p;
+    el.textContent = val.toLocaleString('pt-BR', {maximumFractionDigits: decimals});
+    if (p < 1) requestAnimationFrame(step);
+    else el.textContent = target.toLocaleString('pt-BR', {maximumFractionDigits: decimals});
+  }
+  requestAnimationFrame(step);
+}
+
+// ===================== ATRAÇÃO (tela ociosa) =====================
+function buildAttractFloats(){
+  const wrap = document.getElementById('attract-floats');
+  const symbols = ['💵','💶','💴','💷','🪙','💰'];
+  wrap.innerHTML = '';
+  for (let i = 0; i < 10; i++){
+    const s = document.createElement('div');
+    s.className = 'attract-float';
+    s.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+    s.style.left = (Math.random() * 94) + 'vw';
+    s.style.animationDuration = (9 + Math.random() * 8) + 's';
+    s.style.animationDelay = (-Math.random() * 14) + 's';
+    wrap.appendChild(s);
+  }
+}
+buildAttractFloats();
+
+// QR code para redes sociais do PET Economia — preencher o link antes do evento.
+const PET_SOCIAL_URL = ''; // ex: 'https://instagram.com/peteconomia'
+function setupQR(){
+  if (!PET_SOCIAL_URL) return;
+  const img = document.getElementById('qr-img');
+  img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(PET_SOCIAL_URL);
+  img.style.display = 'block';
+  document.getElementById('qr-label').style.display = 'block';
+}
+setupQR();
+
+// Retorno automático à tela de atração quando ninguém interage por um tempo,
+// exceto durante o cronômetro de palpite (não queremos interromper uma dupla jogando).
+const IDLE_MS = 45000;
+let idleTimer = null;
+function resetIdle(){
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(() => {
+    if (!timerInterval) goToAttract();
+  }, IDLE_MS);
+}
+function goToAttract(){
+  clearInterval(timerInterval);
+  showScreen('screen-start');
+}
+document.getElementById('stage').addEventListener('click', resetIdle);
+document.getElementById('stage').addEventListener('touchstart', resetIdle);
+resetIdle();
+
+// ===================== DADOS DO EVENTO (localStorage) =====================
+// Cada palpite de cada rodada é salvo localmente, para dar um relatório no fim do dia.
+function logRoundToHistory(scored, real){
+  const key = 'qv_history';
+  let hist = [];
+  try{ hist = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e){ hist = []; }
+  hist.push({
+    ts: Date.now(),
+    object: currentObject.name,
+    realPrice: real,
+    numTeams: teams.length,
+    guesses: scored.map(s => ({ team: teams[s.teamIndex].name, guess: s.guess, points: s.points }))
+  });
+  if (hist.length > 3000) hist = hist.slice(hist.length - 3000);
+  localStorage.setItem(key, JSON.stringify(hist));
+}
+// Ranking das melhores pontuações individuais do dia (para a vitrine pública).
+function recordBestOfDay(scored){
+  const key = 'qv_best_of_day';
+  let list = [];
+  try{ list = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e){ list = []; }
+  scored.forEach(s => {
+    if (s.guess === null) return;
+    list.push({ points: s.points, object: currentObject.name, emoji: currentObject.emoji, ts: Date.now() });
+  });
+  list.sort((a, b) => b.points - a.points);
+  list = list.slice(0, 8);
+  localStorage.setItem(key, JSON.stringify(list));
+}
+function exportHistoryCSV(){
+  let hist = [];
+  try{ hist = JSON.parse(localStorage.getItem('qv_history') || '[]'); } catch(e){ hist = []; }
+  const rows = [['data_hora','objeto','preco_real','numero_duplas','dupla','palpite','pontos']];
+  hist.forEach(r => {
+    r.guesses.forEach(g => {
+      rows.push([
+        new Date(r.ts).toLocaleString('pt-BR'), r.object, r.realPrice, r.numTeams,
+        g.team, g.guess === null ? '' : g.guess, g.points
+      ]);
+    });
+  });
+  const csv = rows.map(row => row.map(v => '"' + String(v).replace(/"/g,'""') + '"').join(';')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'quanto-vale-dados.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ===================== NAVEGAÇÃO =====================
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ---- Team setup ----
+document.getElementById('btn-start').addEventListener('click', () => showScreen('screen-teams'));
+document.getElementById('team-count-row').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-n]');
+  if (!btn) return;
+  numTeams = parseInt(btn.dataset.n, 10);
+  document.querySelectorAll('#team-count-row button').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+});
+document.getElementById('btn-confirm-teams').addEventListener('click', () => {
+  teams = [];
+  for (let i = 1; i <= numTeams; i++) teams.push({ name: 'Dupla ' + i, score: 0 });
+  usedIndices = [];
+  showScreen('screen-pick');
+});
+
+// ---- Object grid ----
+function buildObjectGrid(){
+  const grid = document.getElementById('pick-scroll');
+  grid.innerHTML = '';
+  objects.forEach((obj, idx) => {
+    const card = document.createElement('div');
+    card.className = 'obj-card';
+    card.innerHTML = '<div class="emoji">' + obj.emoji + '</div><div class="name">' + obj.name + '</div>';
+    card.addEventListener('click', () => selectObject(idx));
+    grid.appendChild(card);
+  });
+}
+function pickRandomIndex(){
+  if (usedIndices.length >= objects.length) usedIndices = [];
+  let idx;
+  do { idx = Math.floor(Math.random() * objects.length); } while (usedIndices.includes(idx));
+  usedIndices.push(idx);
+  return idx;
+}
+document.getElementById('btn-random-object').addEventListener('click', () => selectObject(pickRandomIndex()));
+
+function selectObject(idx){
+  currentObject = objects[idx];
+  priceStr = '';
+  document.getElementById('setprice-emoji').textContent = currentObject.emoji;
+  document.getElementById('setprice-name').textContent = currentObject.name;
+  document.getElementById('setprice-value').textContent = '0';
+  document.getElementById('setprice-error').textContent = '';
+  showScreen('screen-setprice');
+}
+
+// ---- Keypads ----
+function wireKeypad(keypadId, getStr, setStr, displayId){
+  document.getElementById(keypadId).addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-key]');
+    if (!btn) return;
+    let s = getStr();
+    if (btn.dataset.key === 'back') s = s.slice(0, -1);
+    else if (btn.dataset.key === 'clear') s = '';
+    else if (s.length < 6) s += btn.dataset.key;
+    setStr(s);
+    document.getElementById(displayId).textContent = s === '' ? '0' : parseInt(s, 10).toString();
+  });
+}
+wireKeypad('keypad-price', () => priceStr, (v) => priceStr = v, 'setprice-value');
+wireKeypad('keypad-guess', () => guessStr, (v) => guessStr = v, 'guess-value');
+
+document.getElementById('btn-confirm-price').addEventListener('click', () => {
+  if (priceStr === '' || parseInt(priceStr, 10) <= 0){
+    document.getElementById('setprice-error').textContent = 'Digitem o preço real antes de confirmar.';
+    return;
+  }
+  currentRealPrice = parseInt(priceStr, 10);
+  currentTeamTurn = 0;
+  roundGuesses = [];
+  startTeamTurn();
+});
+
+// ---- Team turns with timer ----
+function startTeamTurn(){
+  guessStr = '';
+  document.getElementById('turn-label').textContent = 'Vez da ' + teams[currentTeamTurn].name;
+  document.getElementById('guess-emoji').textContent = currentObject.emoji;
+  document.getElementById('guess-name').textContent = currentObject.name;
+  document.getElementById('guess-value').textContent = '0';
+  document.getElementById('guess-error').textContent = '';
+  showScreen('screen-guess');
+  startTimer();
+}
+function startTimer(){
+  clearInterval(timerInterval);
+  timerSeconds = TIMER_TOTAL;
+  const fill = document.getElementById('timer-fill');
+  fill.style.transition = 'none';
+  fill.style.width = '100%';
+  fill.classList.remove('urgent');
+  requestAnimationFrame(() => { fill.style.transition = 'width 1s linear, background .3s ease'; });
+  timerInterval = setInterval(() => {
+    timerSeconds -= 1;
+    const pct = Math.max(0, (timerSeconds / TIMER_TOTAL) * 100);
+    fill.style.width = pct + '%';
+    if (timerSeconds <= 5){
+      fill.classList.add('urgent');
+      sfxTick();
+    }
+    if (timerSeconds <= 0){
+      clearInterval(timerInterval);
+      timerInterval = null;
+      confirmGuess(true);
+    }
+  }, 1000);
+}
+document.getElementById('btn-confirm-guess').addEventListener('click', () => confirmGuess(false));
+
+function confirmGuess(timedOut){
+  clearInterval(timerInterval);
+  timerInterval = null;
+  let guessVal = null;
+  if (guessStr !== '' && parseInt(guessStr, 10) > 0) guessVal = parseInt(guessStr, 10);
+  if (!timedOut && guessVal === null){
+    document.getElementById('guess-error').textContent = 'Toquem em pelo menos um número antes de confirmar.';
+    startTimer();
+    return;
+  }
+  roundGuesses.push({ teamIndex: currentTeamTurn, guess: guessVal });
+  currentTeamTurn += 1;
+  if (currentTeamTurn < teams.length){
+    startTeamTurn();
+  } else {
+    showRoundResult();
+  }
+}
+
+// ---- Scoring ----
+function pointsFor(guess, real){
+  if (guess === null) return 0;
+  const diff = Math.abs(guess - real) / real;
+  if (diff === 0) return 100;
+  if (diff <= 0.05) return 90;
+  if (diff <= 0.15) return 70;
+  if (diff <= 0.30) return 50;
+  if (diff <= 0.50) return 25;
+  return 10;
+}
+
+function showRoundResult(){
+  const real = currentRealPrice;
+  document.getElementById('rr-real').textContent = 'Preço real: R$ ' + real.toLocaleString('pt-BR');
+
+  const scored = roundGuesses.map(rg => {
+    const pts = pointsFor(rg.guess, real);
+    const diff = rg.guess === null ? Infinity : Math.abs(rg.guess - real);
+    return { teamIndex: rg.teamIndex, guess: rg.guess, points: pts, diff: diff };
+  });
+  scored.sort((a, b) => a.diff - b.diff);
+  if (scored.length && scored[0].guess !== null) scored[0].points += 20; // bônus de rodada
+
+  scored.forEach(s => { teams[s.teamIndex].score += s.points; });
+
+  logRoundToHistory(scored, real);
+  recordBestOfDay(scored);
+
+  const list = document.getElementById('rr-list');
+  list.innerHTML = '';
+  scored.forEach((s, i) => {
+    const row = document.createElement('div');
+    row.className = 'rr-row' + (i === 0 && s.guess !== null ? ' winner' : '');
+    const guessText = s.guess === null ? 'não chutou a tempo' : 'chutou R$ ' + s.guess.toLocaleString('pt-BR');
+    row.innerHTML =
+      '<div class="rr-rank">' + (i + 1) + 'º</div>' +
+      '<div class="rr-team">' + teams[s.teamIndex].name + (i === 0 && s.guess !== null ? ' 🏆' : '') + '<br><span class="rr-guess">' + guessText + '</span></div>' +
+      '<div class="rr-points">+' + s.points + ' pts</div>';
+    list.appendChild(row);
+  });
+
+  showScreen('screen-roundresult');
+  requestAnimationFrame(() => {
+    list.querySelectorAll('.rr-row').forEach((row, i) => setTimeout(() => row.classList.add('show'), 120 * i));
+  });
+  if (scored.length && scored[0].guess !== null && scored[0].diff / real <= 0.15){
+    launchConfetti();
+    flashScreen();
+    sfxWin();
+  }
+}
+
+// ---- Confetti ----
+function launchConfetti(){
+  const colors = ['#1F7A5C', '#D9A441', '#2F6FA6', '#C4426E', '#6B4FA0'];
+  const stage = document.getElementById('stage');
+  for (let i = 0; i < 40; i++){
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = (Math.random() * 100) + 'vw';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.transform = 'rotate(' + Math.floor(Math.random() * 360) + 'deg)';
+    const duration = 1.6 + Math.random() * 1.2;
+    piece.style.transition = 'top ' + duration + 's ease-in, opacity ' + duration + 's ease-in';
+    stage.appendChild(piece);
+    requestAnimationFrame(() => {
+      piece.style.top = '104vh';
+      piece.style.opacity = '0.15';
+    });
+    setTimeout(() => piece.remove(), duration * 1000 + 200);
+  }
+}
+
+// ---- Round result actions ----
+document.getElementById('btn-view-currencies').addEventListener('click', () => showCurrencyReveal());
+document.getElementById('btn-to-vitrine').addEventListener('click', () => showLeaderboard());
+document.getElementById('btn-back-to-result').addEventListener('click', () => showScreen('screen-roundresult'));
+
+function showCurrencyReveal(){
+  const real = currentRealPrice;
+  document.getElementById('reveal-object-name').textContent = currentObject.emoji + ' ' + currentObject.name + ' — R$ ' + real.toLocaleString('pt-BR');
+  document.getElementById('rates-note').textContent = ratesAreLive
+    ? 'Cotações ao vivo, atualizadas agora'
+    : 'Cotações salvas de reserva (sem internet no momento)';
+
+  // Cédulas em destaque (5 países) — fotos ficam em assets/cedulas/{codigo}.jpg;
+  // sem a foto, mostra um cartão estilizado no lugar (não quebra o jogo).
+  const noteGrid = document.getElementById('note-grid');
+  noteGrid.innerHTML = '';
+  HIGHLIGHT_CODES.forEach((code, i) => {
+    const unit = brlPerUnit[code];
+    const val = real / unit;
+    const decimals = val >= 1000 ? 0 : (val >= 10 ? 1 : 2);
+    const card = document.createElement('div');
+    card.className = 'note-card';
+    card.innerHTML =
+      '<div class="note-photo">' +
+        '<img src="assets/cedulas/' + code.toLowerCase() + '.jpg" alt="Cédula ' + code + '" ' +
+          'onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';">' +
+        '<div class="note-fallback"><span class="flag">' + (CURRENCY_FLAGS[code] || '') + '</span><span class="code">' + code + '</span></div>' +
+      '</div>' +
+      '<div class="note-country">' + CURRENCY_LABELS[code] + '</div>' +
+      '<div class="note-value"><span class="num">0</span> ' + code + '</div>' +
+      '<div class="note-fact">' + (CURRENCY_FACTS[code] || '') + '</div>';
+    noteGrid.appendChild(card);
+    const numEl = card.querySelector('.num');
+    setTimeout(() => {
+      card.classList.add('show');
+      animateCount(numEl, val, decimals);
+      sfxReveal();
+    }, i * 160);
+  });
+
+  // Demais moedas — lista simples e didática.
+  const grid = document.getElementById('curr-grid');
+  grid.innerHTML = '';
+  const otherAll = ['BRL'].concat(OTHER_CODES);
+  otherAll.forEach(code => {
+    let numVal, decimals, suffix;
+    if (code === 'BRL'){ numVal = real; decimals = 0; suffix = ''; }
+    else {
+      const unit = brlPerUnit[code];
+      numVal = real / unit;
+      decimals = numVal >= 1000 ? 0 : (numVal >= 10 ? 1 : 2);
+      suffix = ' ' + code;
+    }
+    const card = document.createElement('div');
+    card.className = 'curr-card';
+    card.innerHTML =
+      '<div class="curr-flag">' + (CURRENCY_FLAGS[code] || '') + '</div>' +
+      '<div class="curr-label">' + CURRENCY_LABELS[code] + '</div>' +
+      '<div class="curr-value">' + (code === 'BRL' ? 'R$ ' : '') + '<span class="num">0</span>' + suffix + '</div>';
+    grid.appendChild(card);
+    card.dataset.val = numVal;
+    card.dataset.dec = decimals;
+  });
+
+  showScreen('screen-reveal');
+  requestAnimationFrame(() => {
+    grid.querySelectorAll('.curr-card').forEach((card, i) => setTimeout(() => {
+      card.classList.add('show');
+      const numEl = card.querySelector('.num');
+      animateCount(numEl, parseFloat(card.dataset.val), parseInt(card.dataset.dec, 10), 500);
+    }, 60 * i));
+  });
+}
+
+// ---- Leaderboard / Vitrine ----
+function showLeaderboard(){
+  let list = [];
+  try{ list = JSON.parse(localStorage.getItem('qv_best_of_day') || '[]'); } catch(e){ list = []; }
+  const el = document.getElementById('lb-list');
+  el.innerHTML = '';
+  if (!list.length){
+    el.innerHTML = '<div class="lb-empty">Ainda ninguém pontuou hoje. Sejam os primeiros!</div>';
+  } else {
+    const medals = ['🥇', '🥈', '🥉'];
+    list.forEach((r, i) => {
+      const row = document.createElement('div');
+      row.className = 'lb-row' + (i === 0 ? ' first' : '');
+      row.innerHTML =
+        '<div class="lb-medal">' + (medals[i] || (i + 1) + 'º') + '</div>' +
+        '<div class="lb-info">' + r.emoji + ' <span class="lb-obj">' + r.object + '</span></div>' +
+        '<div class="lb-score">' + r.points + ' pts</div>';
+      el.appendChild(row);
+    });
+  }
+  showScreen('screen-leaderboard');
+}
+document.getElementById('btn-open-leaderboard').addEventListener('click', showLeaderboard);
+document.getElementById('btn-leaderboard-back').addEventListener('click', () => showScreen('screen-pick'));
+document.getElementById('btn-new-game').addEventListener('click', () => {
+  usedIndices = [];
+  document.querySelectorAll('#team-count-row button').forEach(b => b.classList.remove('selected'));
+  showScreen('screen-teams');
+});
+
+// ---- Settings ----
+document.getElementById('btn-open-settings').addEventListener('click', () => { updateSettingsStatus(); showScreen('screen-settings'); });
+document.getElementById('btn-close-settings').addEventListener('click', () => showScreen('screen-pick'));
+document.getElementById('btn-refresh-rates').addEventListener('click', () => {
+  document.getElementById('settings-status').textContent = 'Buscando cotações atualizadas...';
+  loadRates();
+});
+document.getElementById('btn-export-data').addEventListener('click', exportHistoryCSV);
+
+buildObjectGrid();
+loadRates();
+</script>
+</body>
+</html>
